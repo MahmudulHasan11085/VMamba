@@ -1799,51 +1799,7 @@ def vmamba_base_m2():
         use_checkpoint=False, posembed=False, imgsize=224, 
     )
 
+model = vmamba_tiny_s1l8()
+print(model)
 
-if __name__ == "__main__":
-    model_ref = vmamba_tiny_s1l8()
-
-    model = VSSM(
-        depths=[2, 2, 4, 2], dims=96, drop_path_rate=0.2, 
-        patch_size=4, in_chans=3, num_classes=1000, 
-        ssm_d_state=64, ssm_ratio=1.0, ssm_dt_rank="auto", ssm_act_layer="gelu",
-        ssm_conv=3, ssm_conv_bias=False, ssm_drop_rate=0.0, 
-        ssm_init="v2", forward_type="m0_noz", 
-        mlp_ratio=4.0, mlp_act_layer="gelu", mlp_drop_rate=0.0, gmlp=False,
-        patch_norm=True, norm_layer="ln",
-        downsample_version="v3", patchembed_version="v2", 
-        use_checkpoint=False, posembed=False, imgsize=224, 
-    )
-    print(parameter_count(model)[""])
-    model.cuda().train()
-    model_ref.cuda().train()
-
-    def bench(model):
-        import time
-        inp = torch.randn((128, 3, 224, 224)).cuda()
-        for _ in range(30):
-            model(inp)
-        torch.cuda.synchronize()
-        tim = time.time()
-        for _ in range(30):
-            model(inp)
-        torch.cuda.synchronize()
-        tim1 = time.time() - tim
-
-        for _ in range(30):
-            model(inp).sum().backward()
-        torch.cuda.synchronize()
-        tim = time.time()
-        for _ in range(30):
-            model(inp).sum().backward()
-        torch.cuda.synchronize()
-        tim2 = time.time() - tim
-
-        return tim1 / 30, tim2 / 30
     
-    print(bench(model_ref))
-    print(bench(model))
-
-    breakpoint()
-
-
