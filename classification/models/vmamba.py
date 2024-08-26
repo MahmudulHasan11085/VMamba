@@ -1815,7 +1815,6 @@ if __name__ == "__main__":
         use_checkpoint=False, posembed=False, imgsize=224, 
     )
     print(parameter_count(model)[""])
-    print(model.flops()) # wrong
     model.cuda().train()
     model_ref.cuda().train()
 
